@@ -1,19 +1,25 @@
-﻿using System;
-
-var listaArtikla = new List<(string Name, int Quant, float Price, DateOnly Date)>();
+﻿var listaArtikla = new List<(string Name, int Quant, float Price, DateOnly Date)>();
 var listaArtikla2 = new List<(string Name, int Quant, float Price, DateOnly Date)>();
 var listaZaPrviRacun = new List<(string Name, int Quant, float Price)>();
 var listaZaRacune = new List<(string Name, int Quant, float Price)>();
+
 var radnici = new Dictionary<string, DateOnly>()
 {
     {"Petar Golem", new DateOnly(2001, 05, 20)}
 };
-listaZaPrviRacun.Add(("babane", 10, 4));
+listaZaPrviRacun.Add(("banane", 10, 4));
+
 var racuni = new Dictionary<(int, DateTime), List<(string Name, int Quant, float Price)>>
 {
-    {(0, new DateTime()), listaZaPrviRacun}
+    {(0, DateTime.Now), new List<(string Name, int Quant, float Price)>(listaZaPrviRacun)}
 };
 listaArtikla.Add(("pome", 5, 2, new DateOnly(2023, 11, 20)));
+
+var prodano = new Dictionary<string, int>
+{
+    {"banane", 10}
+};
+
 var id = 0;
 do
 {
@@ -25,18 +31,18 @@ do
     var treci = "0";
     do
     {
-        if (int.TryParse(Console.ReadLine(), out prvi) && 5 > prvi && prvi >=0)
+        if (int.TryParse(Console.ReadLine(), out prvi) && 5 > prvi && prvi >= 0)
             break;
         Console.WriteLine("Upisi odgovarajucu vrijednost");
     } while (true);
 
     if (prvi == 1)
     {
-        
+
         do
         {
             Console.Clear();
-            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
             Console.WriteLine("1. Unos artikla (sve potrebne informacije)\n2. Brisanje artikla\n3. Uređivanje artikla\n4. Ispis");
             do
             {
@@ -45,11 +51,50 @@ do
                 Console.WriteLine("Upisi odgovarajucu vrijednost");
             } while (true);
             if (drugi == 1)
-                listaArtikla.Add(noviArtikl());
+            {
+                Console.WriteLine("Upisi ime artikla: ");
+                var name = Console.ReadLine();
+
+                Console.WriteLine("Upisite kolicinu artikala: ");
+                var quant = 1;
+                do
+                {
+                    if (int.TryParse(Console.ReadLine(), out quant))
+                        break;
+                    Console.WriteLine("Upisi odgovarajucu vrijednost");
+                } while (true);
+
+                Console.WriteLine("Upisite cijenu artikla: ");
+                var price = (float)1;
+                do
+                {
+                    if (float.TryParse(Console.ReadLine(), out price))
+                        break;
+                    Console.WriteLine("Upisi odgovarajucu vrijednost");
+                } while (true);
+
+                var date = datum();
+                var artikl = (name, quant, price, date);
+                var artiklPostoji = 0;
+                foreach (var item in listaArtikla)
+                {
+                    if (artikl.name == item.Name)
+                    {
+                        artiklPostoji++;
+                        Console.WriteLine("Artikl vec postoji!");
+                        Console.ReadKey();
+                        break;
+                    }
+                }
+                if (artiklPostoji == 0)
+                {
+                    listaArtikla.Add(artikl);
+                }
+            }
             else if (drugi == 2)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("a. Po imenu artikla\nb. Sve one kojima je istekao datum trajanja");
                 do
                 {
@@ -92,7 +137,7 @@ do
             else if (drugi == 3)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("a. Zasebno proizvoda\nb. Popopust/poskupljenje na sve proizvode unutar trgovine");
                 do
                 {
@@ -100,7 +145,7 @@ do
                     switch (treci)
                     {
                         case "a":
-                            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                             do
                             {
                                 Console.WriteLine("Koji artikl zelite urediti?");
@@ -192,10 +237,10 @@ do
             else if (drugi == 4)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("a. Svih artikala kako su spremljeni\nb. Svih artikala sortirano po imenu\n" +
                     "c. Svih artikala sortirano po datumu silazno\nd. Svih artikala sortirano po datumu uzlazno\n" +
-                    "e. Svih artikala sortirano po količini");
+                    "e. Svih artikala sortirano po količini\nf. Najprodavaniji artikl\ng. Najmanje prodavan artikl");
                 do
                 {
                     treci = Console.ReadLine();
@@ -235,6 +280,38 @@ do
                             listaArtikla2.Clear();
                             treci = "0";
                             break;
+                        case "f":
+                            var max = 0;
+                            foreach (var item in prodano)
+                            {
+                                if (item.Value > max)
+                                {
+                                    max = item.Value;
+                                }
+                            }
+                            foreach (var item in prodano)
+                            {
+                                if (item.Value == max)
+                                    Console.WriteLine(item.Key);
+                            }
+                            treci = "0";
+                            break;
+                        case "g":
+                            var min = int.MaxValue;
+                            foreach (var item in prodano)
+                            {
+                                if (item.Value < min)
+                                {
+                                    min = item.Value;
+                                }
+                            }
+                            foreach (var item in prodano)
+                            {
+                                if (item.Value == min)
+                                    Console.WriteLine(item.Key);
+                            }
+                            treci = "0";
+                            break;
                         default:
                             Console.WriteLine("Upisi tocnu vrijednost!");
                             break;
@@ -243,7 +320,7 @@ do
                 var izlaz = Console.ReadLine();
             }
 
-        } while (drugi!=0);
+        } while (drugi != 0);
 
     }
 
@@ -253,12 +330,12 @@ do
 
 
 
-    else if(prvi==2)
+    else if (prvi == 2)
     {
         do
         {
             Console.Clear();
-            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
             Console.WriteLine("1. Unos radnika (sve potrebne informacije)\n2. Brisanje radnika\n3. Uređivanje radnika\n4. Ispis");
             do
             {
@@ -269,7 +346,7 @@ do
             if (drugi == 1)
             {
                 Console.WriteLine("Unesi ime i prezime: ");
-                var ime=Console.ReadLine();
+                var ime = Console.ReadLine();
                 Console.WriteLine("Unesi datum rodenja: ");
                 var dat = datum();
                 radnici.Add(ime, dat);
@@ -277,7 +354,7 @@ do
             else if (drugi == 2)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("a. Po imenu\nb. Svih onih koji imaju više od 65 godina");
                 do
                 {
@@ -295,7 +372,7 @@ do
                             {
                                 foreach (var item in radnici)
                                 {
-                                    if (DateTime.Now.Year - item.Value.Year >65)
+                                    if (DateTime.Now.Year - item.Value.Year > 65)
                                     {
                                         radnici.Remove(item.Key);
                                         break;
@@ -313,16 +390,16 @@ do
             else if (drugi == 3)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("Kojeg radnika zelite urediti? ");
-                var ime=Console.ReadLine();
+                var ime = Console.ReadLine();
                 Console.WriteLine("Unesi novi datum rodenja: ");
-                radnici[ime]=datum();
+                radnici[ime] = datum();
             }
             else if (drugi == 4)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
                 Console.WriteLine("a. svih radnika (format: ime - godine)\nb. svih radnika kojima je rođendan u tekućem mjesecu");
                 do
                 {
@@ -336,7 +413,7 @@ do
                             break;
                         case "b":
                             foreach (var item in radnici)
-                                if(item.Value.Month== DateTime.Now.Month)
+                                if (item.Value.Month == DateTime.Now.Month)
                                     Console.WriteLine($"{item.Key} - {item.Value}");
                             treci = "0";
                             break;
@@ -347,7 +424,7 @@ do
                 } while (treci != "0");
                 var izlaz = Console.ReadLine();
             }
-        } while (drugi!=0);
+        } while (drugi != 0);
     }
 
 
@@ -355,12 +432,12 @@ do
 
 
 
-    else if(prvi ==3)
+    else if (prvi == 3)
     {
         do
         {
             Console.Clear();
-            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
+            Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
             Console.WriteLine("1. Unos novog računa\n2. Ispis");
             do
             {
@@ -370,19 +447,19 @@ do
             } while (true);
             if (drugi == 1)
             {
-                Console.WriteLine("-- Lista dostupnik artikla --");
+                Console.WriteLine("\n-- Lista dostupnih artikla --\n");
                 foreach (var item in listaArtikla)
                     Console.WriteLine(item);
-                Console.WriteLine("-- Ako ste gotovi sa upisivanjem artikla, upisite: \"gotovo\" --");
+                Console.WriteLine("\n-- Ako ste gotovi sa upisivanjem artikla, upisite: \"gotovo\" --\n");
                 var proizvod = "";
-                int kol=1;
+                int kol = 1;
                 do
                 {
                     Console.WriteLine("Unesite ime artikal za kupnju: ");
                     proizvod = Console.ReadLine();
                     foreach (var item in listaArtikla)
                     {
-                        if(item.Name == proizvod)
+                        if (item.Name == proizvod)
                         {
                             Console.WriteLine("Unesite kolicinu artikla za kupnju: ");
                             do
@@ -406,19 +483,24 @@ do
                     {
                         if (proizvod.ToLower() == "gotovo")
                             break;
-                        if (item.Name == listaArtikla2[0].Name)
+                        if (item.Name == proizvod && item.Quant != kol)
                         {
                             listaArtikla.Remove(item);
                             listaArtikla.Add(listaArtikla2[0]);
                             break;
-                        }    
+                        }
+                        else if (item.Name == proizvod)
+                        {
+                            listaArtikla.Remove(item);
+                            break;
+                        }
                     }
                     listaArtikla2.Clear();
                 } while (proizvod.ToLower() != "gotovo");
-                Console.WriteLine("-- Vas racun --");
+                Console.WriteLine("\n-- Vas racun --\n");
                 foreach (var item in listaZaRacune)
                     Console.WriteLine(item);
-                Console.WriteLine("-- Ako ste zadovoljni sa racunom upisite 1, ako niste upisite drugi broj --");
+                Console.WriteLine("\n-- Ako ste zadovoljni sa racunom upisite 1, ako niste upisite drugi broj --\n");
                 var odg = 0;
                 do
                 {
@@ -426,79 +508,87 @@ do
                         break;
                     Console.WriteLine("Upisi odgovarajucu vrijednost");
                 } while (true);
-                if(odg==1)
+                if (odg == 1)
                 {
+                    foreach (var item in listaZaRacune)
+                    {
+                        prodano[item.Name] = 0;
+                        prodano[item.Name] += item.Quant;
+                    }
                     id++;
-                    racuni[(id, DateTime.Now)] = listaZaRacune;
-                    listaZaRacune.Clear();
+                    racuni[(id, DateTime.Now)] = new List<(string Name, int Quant, float Price)>(listaZaRacune);
                     Console.Clear();
                     foreach (var item in racuni)
                     {
                         var kljuc = item.Key;
                         var vrijednost = item.Value;
-                        if(kljuc.Item1==id)
+                        if (kljuc.Item1 == id)
                         {
                             float ukupno = 0;
-                            Console.WriteLine($"id: {kljuc.Item1}\t\t\t datum: {kljuc.Item2}");
+                            Console.WriteLine($"id: {kljuc.Item1}\t\t\t datum: {kljuc.Item2}\n");
                             foreach (var sus in vrijednost)
                             {
-                                Console.WriteLine(sus);
-                                Console.WriteLine($"{sus.Name} {sus.Quant} {sus.Price}");
-                                ukupno += sus.Price;
+                                Console.WriteLine($"\t{sus.Name} \t\tKolicina: {sus.Quant}\tCijena: {sus.Price}");
+                                ukupno += (sus.Price * sus.Quant);
                             }
-                            Console.WriteLine($"\n\nUkupna cijena: {ukupno}");
+                            Console.WriteLine($"\nUkupna cijena: {ukupno}");
                             Console.ReadKey();
                         }
                     }
                 }
+                listaZaRacune.Clear();
 
             }
-            
+
             else if (drugi == 2)
             {
                 Console.Clear();
-                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --");
-                Console.WriteLine("a. Svih artikala kako su spremljeni\nb. Svih artikala sortirano po imenu\n" +
-                    "c. Svih artikala sortirano po datumu silazno\nd. Svih artikala sortirano po datumu uzlazno\n" +
-                    "e. Svih artikala sortirano po količini");
+                Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
+                Console.WriteLine("a. Svih racuna");
                 do
                 {
                     treci = Console.ReadLine();
                     switch (treci)
                     {
                         case "a":
-                            foreach (var item in listaArtikla)
-                                Console.WriteLine($"{item}");
+                            foreach (var item in racuni)
+                            {
+                                float ukupno = 0;
+                                foreach (var sus in item.Value)
+                                {
+                                    ukupno += (sus.Price * sus.Quant);
+                                }
+                                Console.WriteLine($"\tId: {item.Key.Item1}\tDatum i vrijeme: {item.Key.Item2}\tIznos: {ukupno}");
+                            }
                             treci = "0";
-                            break;
-                        case "b":
-                            listaArtikla2.AddRange(listaArtikla.OrderBy(x => x.Name).ToList());
-                            foreach (var item in listaArtikla2)
-                                Console.WriteLine($"{item}");
-                            listaArtikla2.Clear();
-                            treci = "0";
-                            break;
-                        case "c":
-                            listaArtikla2.AddRange(listaArtikla.OrderBy(x => x.Date).ToList());
-                            listaArtikla2.Reverse();
-                            foreach (var item in listaArtikla2)
-                                Console.WriteLine($"{item}");
-                            listaArtikla2.Clear();
-                            treci = "0";
-                            break;
-                        case "d":
-                            listaArtikla2.AddRange(listaArtikla.OrderBy(x => x.Date).ToList());
-                            foreach (var item in listaArtikla2)
-                                Console.WriteLine($"{item}");
-                            listaArtikla2.Clear();
-                            treci = "0";
-                            break;
-                        case "e":
-                            listaArtikla2.AddRange(listaArtikla.OrderBy(x => x.Quant).ToList());
-                            foreach (var item in listaArtikla2)
-                                Console.WriteLine($"{item}");
-                            listaArtikla2.Clear();
-                            treci = "0";
+                            Console.WriteLine("\n--za odabir racuna, unesi \"i\". Za povratak nazad unesi nest drugo--\n");
+                            if (Console.ReadLine() == "i")
+                            {
+                                Console.WriteLine("Unesi id racuna kojeg zelis pregledat:");
+                                var racunId = 1;
+                                do
+                                {
+                                    if (int.TryParse(Console.ReadLine(), out racunId) && racunId >= 0 && racunId < racuni.Count())
+                                        break;
+                                    Console.WriteLine("Upisi odgovarajucu vrijednost");
+                                } while (true);
+                                foreach (var item in racuni)
+                                {
+                                    var kljuc = item.Key;
+                                    var vrijednost = item.Value;
+                                    if (kljuc.Item1 == racunId)
+                                    {
+                                        float ukupno = 0;
+                                        Console.WriteLine($"id: {kljuc.Item1}\t\t\t datum: {kljuc.Item2}\n");
+                                        foreach (var sus in vrijednost)
+                                        {
+                                            Console.WriteLine($"\t{sus.Name} \t\tKolicina: {sus.Quant}\tCijena: {sus.Price}");
+                                            ukupno += (sus.Price * sus.Quant);
+                                        }
+                                        Console.WriteLine($"\nUkupna cijena: {ukupno}");
+                                    }
+                                }
+                            }
                             break;
                         default:
                             Console.WriteLine("Upisi tocnu vrijednost!");
@@ -510,6 +600,134 @@ do
 
         } while (drugi != 0);
     }
+
+
+
+    else if (prvi == 4)
+    {
+        Console.Clear();
+        Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
+        Console.WriteLine("Unesi sifru: ");
+        do
+        {
+            var sifra = Console.ReadLine();
+            if (sifra == password())
+            {
+                do
+                {
+                    Console.Clear();
+                    Console.WriteLine("-- za povratak na glavni izbornik upisite \"0\" --\n");
+                    Console.WriteLine("1. Ukupan broj artikala u trgovini\n2. Vrijednost artikala koji nisu još prodani\n" +
+                        "3. Vrijednost svih artikala koji su prodani\n4. Stanje po mjesecima");
+                    do
+                    {
+                        if (int.TryParse(Console.ReadLine(), out drugi) && 5 > drugi && drugi >= 0)
+                            break;
+                        Console.WriteLine("Upisi odgovarajucu vrijednost");
+                    } while (true);
+                    if (drugi == 1)
+                    {
+                        Console.Clear();
+                        var brArtikala = 0;
+                        foreach (var item in listaArtikla)
+                        {
+                            brArtikala += item.Quant;
+                            Console.WriteLine($"\t{item.Name}\t{item.Quant}");
+                        }
+                        Console.WriteLine($"\nTrgovina ima {brArtikala} artikala.");
+                        Console.ReadKey();
+
+                    }
+
+                    else if (drugi == 2)
+                    {
+                        Console.Clear();
+                        float vrijeArtikala = 0;
+                        foreach (var item in listaArtikla)
+                        {
+                            vrijeArtikala += item.Price * item.Quant;
+                            Console.WriteLine($"\t{item.Name}\t{item.Price}");
+                        }
+                        Console.WriteLine($"\nSveukupna vrijednost artikala u trgovini izosi: {vrijeArtikala}");
+                        Console.ReadKey();
+                    }
+
+                    else if (drugi == 3)
+                    {
+                        Console.Clear();
+                        float vrijeArtikala = 0;
+                        foreach (var item in racuni)
+                        {
+                            foreach (var sus in item.Value)
+                            {
+                                vrijeArtikala += sus.Price * sus.Quant;
+                                Console.WriteLine($"\t{sus.Name}\t{sus.Price}");
+                            }
+                        }
+                        Console.WriteLine($"\nSveukupna vrijednost artikala u trgovini izosi: {vrijeArtikala}");
+                        Console.ReadKey();
+                    }
+
+                    else if (drugi == 4)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Unesi datum koji vas zanima: ");
+                        var datumZanimanja = datum();
+                        Console.WriteLine("Unesi placu radnika: ");
+                        float placa;
+                        do
+                        {
+                            if (float.TryParse(Console.ReadLine(), out placa))
+                                break;
+                            Console.WriteLine("Upisi odgovarajucu vrijednost");
+                        } while (true);
+                        Console.WriteLine("Unesi iznos najma: ");
+                        float najam;
+                        do
+                        {
+                            if (float.TryParse(Console.ReadLine(), out najam))
+                                break;
+                            Console.WriteLine("Upisi odgovarajucu vrijednost");
+                        } while (true);
+                        Console.WriteLine("Unesi iznos ostalih troskova: ");
+                        float ostaliTroskovi;
+                        do
+                        {
+                            if (float.TryParse(Console.ReadLine(), out ostaliTroskovi))
+                                break;
+                            Console.WriteLine("Upisi odgovarajucu vrijednost");
+                        } while (true);
+                        ostaliTroskovi += najam;
+                        float ukupnaZarada = 0;
+                        foreach (var item in racuni)
+                        {
+                            if (item.Key.Item2.Year == datumZanimanja.Year && item.Key.Item2.Month == datumZanimanja.Month)
+                            {
+                                foreach (var sus in item.Value)
+                                {
+                                    ukupnaZarada += sus.Price * sus.Quant;
+                                }
+                            }
+                        }
+                        Console.WriteLine($"Profit {datumZanimanja.Month}.mjeseca {datumZanimanja.Year}:\n\t{(ukupnaZarada * (1f / 3f) - placa - ostaliTroskovi).ToString("0.00")} ");
+                        Console.ReadKey();
+                    }
+
+                } while (drugi != 0);
+                break;
+            }
+            else if (sifra == "0")
+                break;
+            else
+            {
+                Console.WriteLine("Kriva sifra!");
+            }
+        } while (true);
+
+    }
+
+
+
     else if (prvi == 0)
         break;
 } while (true);
@@ -522,67 +740,20 @@ do
 
 
 
-
-
-static (string, int, float, DateOnly) noviArtikl()
-{
-    Console.WriteLine("Upisi ime artikla: ");
-    var name=Console.ReadLine();
-
-    Console.WriteLine("Upisite kolicinu artikala: ");
-    var quant = 1;
-    do
-    {
-        if (int.TryParse(Console.ReadLine(), out quant))
-            break;
-        Console.WriteLine("Upisi odgovarajucu vrijednost");
-    } while (true);
-
-    Console.WriteLine("Upisite cijenu artikla: ");
-    var price=(float)1;
-    do
-    {
-        if (float.TryParse(Console.ReadLine(), out price))
-            break;
-        Console.WriteLine("Upisi odgovarajucu vrijednost");
-    } while (true);
-
-    var date= datum();
-    var tuple = (name, quant, price, date);
-    return tuple;
-}
-
-
-
 static DateOnly datum()
 {
-    Console.WriteLine("Unesi godinu: ");
-    var year = 1;
+    Console.WriteLine("Unesi datum:");
+    DateOnly date;
     do
     {
-        if (int.TryParse(Console.ReadLine(), out year))
+        if (DateOnly.TryParse(Console.ReadLine(), out date))
             break;
         Console.WriteLine("Upisi odgovarajucu vrijednost");
     } while (true);
-
-    Console.WriteLine("Unesi mjesec: ");
-    var month = 1;
-    do
-    {
-        if (int.TryParse(Console.ReadLine(), out month) && month>0 && month <13)
-            break;
-        Console.WriteLine("Upisi odgovarajucu vrijednost");
-    } while (true);
-
-    Console.WriteLine("Unesi dan: ");
-    var day = 1;
-    do
-    {
-        if (int.TryParse(Console.ReadLine(), out day) && day >0 && day<32)
-            break;
-        Console.WriteLine("Upisi odgovarajucu vrijednost");
-    } while (true);
-
-    var date = new DateOnly(year, month, day);
     return date;
+}
+
+static string password()
+{
+    return "sifra";
 }
